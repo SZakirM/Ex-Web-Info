@@ -1,0 +1,680 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Zakir Shaikh · SDE like Netflix</title>
+    <!-- Font Awesome 6 (free) for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+        }
+
+        body {
+            background: #141414;  /* Netflix black background */
+            color: #e5e5e5;
+            line-height: 1.5;
+        }
+
+        /* netflix‑style container */
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 4%;
+        }
+
+        /* header – like netflix top bar */
+        .navbar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 1.2rem 4%;
+            background: linear-gradient(180deg, rgba(0,0,0,0.9) 0%, rgba(20,20,20,0.95) 90%);
+            border-bottom: 1px solid #2f2f2f;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            backdrop-filter: blur(4px);
+        }
+
+        .logo-area {
+            display: flex;
+            align-items: center;
+            gap: 2rem;
+        }
+
+        .netflix-logo {
+            font-size: 2.1rem;
+            font-weight: 700;
+            color: #e50914;      /* netflix red */
+            letter-spacing: -1px;
+            text-transform: uppercase;
+            text-decoration: none;
+            line-height: 1;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 1.5rem;
+            font-size: 0.95rem;
+            font-weight: 500;
+        }
+
+        .nav-links a {
+            color: #e5e5e5;
+            text-decoration: none;
+            transition: color 0.15s;
+        }
+
+        .nav-links a:hover {
+            color: #b3b3b3;
+        }
+
+        .nav-secondary {
+            display: flex;
+            gap: 1.2rem;
+            color: #fff;
+        }
+
+        .nav-secondary i {
+            font-size: 1.4rem;
+            color: #e5e5e5;
+            cursor: default;
+        }
+
+        /* hero profile banner */
+        .hero-banner {
+            background: linear-gradient(77deg, rgba(0,0,0,0.8) 0%, rgba(0,0,0,0.5) 70%), url('https://assets.nflxext.com/ffe/siteui/vlv3/f841d4c7-10e1-40ef-b1ae-1b6f0d424cea/6b2c3b3f-5dd7-4047-bf78-2eb10bb0afc1/IN-en-20241118-TRIFECTA-perspective_3a8985ad-1f99-453a-af2e-aae29ef58a7a_large.jpg') center/cover no-repeat;
+            height: 460px;
+            margin-bottom: 2rem;
+            border-bottom: 2px solid #e50914;
+            display: flex;
+            align-items: flex-end;
+            padding-bottom: 3rem;
+        }
+
+        .hero-content {
+            max-width: 700px;
+        }
+
+        .hero-content .badge {
+            font-size: 1.2rem;
+            font-weight: 500;
+            color: #e5e5e5;
+            background: rgba(229,9,20,0.85);
+            display: inline-block;
+            padding: 0.25rem 1rem;
+            border-radius: 30px;
+            margin-bottom: 1rem;
+            letter-spacing: 0.5px;
+        }
+
+        .hero-content h1 {
+            font-size: 3.8rem;
+            font-weight: 700;
+            line-height: 1.1;
+            text-shadow: 2px 2px 8px rgba(0,0,0,0.7);
+            color: white;
+        }
+
+        .hero-content .match {
+            color: #46d369;
+            font-weight: 600;
+            font-size: 1.3rem;
+            margin: 0.7rem 0 0.2rem;
+        }
+
+        .hero-desc {
+            font-size: 1.2rem;
+            max-width: 600px;
+            color: #e5e5e5;
+            text-shadow: 1px 1px 4px black;
+        }
+
+        /* sections – netflix rows */
+        .section-title {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 1.6rem;
+            font-weight: 600;
+            margin: 2.5rem 0 1rem 0;
+            color: #ffffff;
+        }
+
+        .section-title i {
+            color: #e50914;
+            font-size: 2rem;
+        }
+
+        /* card grid (like netflix flexible rows) */
+        .card-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            margin-bottom: 2.5rem;
+        }
+
+        .card {
+            background: #1f1f1f;
+            border-radius: 8px;
+            overflow: hidden;
+            transition: transform 0.2s, box-shadow 0.2s;
+            min-width: 260px;
+            flex: 1 1 260px;
+            border: 1px solid #333;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.6);
+        }
+
+        .card:hover {
+            transform: scale(1.03);
+            box-shadow: 0 12px 28px rgba(229,9,20,0.3);
+            border-color: #e50914;
+        }
+
+        .card-header {
+            background: #2a2a2a;
+            padding: 1rem 1.2rem;
+            border-bottom: 2px solid #e50914;
+            font-weight: 600;
+            font-size: 1.3rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .card-header i {
+            color: #e50914;
+        }
+
+        .card-body {
+            padding: 1.2rem 1rem;
+            color: #cfcfcf;
+            font-size: 0.95rem;
+        }
+
+        .skill-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 6px;
+        }
+
+        .skill-tag {
+            background: #333;
+            color: #fff;
+            padding: 6px 14px;
+            border-radius: 30px;
+            font-size: 0.85rem;
+            border-left: 3px solid #e50914;
+            font-weight: 500;
+        }
+
+        .list-item {
+            margin-bottom: 0.6rem;
+            display: flex;
+            gap: 10px;
+            align-items: flex-start;
+        }
+
+        .list-item i {
+            color: #e50914;
+            margin-top: 3px;
+            min-width: 18px;
+        }
+
+        .divider {
+            height: 1px;
+            background: #2f2f2f;
+            margin: 2rem 0;
+        }
+
+        /* contact / footer bar */
+        .footer-bar {
+            background: #0b0b0b;
+            padding: 2rem 4%;
+            border-top: 4px solid #e50914;
+            margin-top: 3rem;
+            color: #9e9e9e;
+            font-size: 0.9rem;
+        }
+
+        .footer-grid {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .social-links {
+            display: flex;
+            gap: 2rem;
+        }
+
+        .social-links a {
+            color: #e5e5e5;
+            font-size: 1.5rem;
+            transition: color 0.15s;
+        }
+
+        .social-links a:hover {
+            color: #e50914;
+        }
+
+        /* copy badge */
+        .netflix-badge {
+            background: #e50914;
+            color: white;
+            padding: 0.1rem 0.7rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            margin-left: 10px;
+        }
+
+        /* responsive touches */
+        @media (max-width: 700px) {
+            .hero-content h1 {
+                font-size: 2.8rem;
+            }
+            .nav-links {
+                display: none;
+            }
+            .card-row {
+                flex-direction: column;
+            }
+        }
+
+        /* small adjustments */
+        .profile-highlight {
+            background: rgba(0,0,0,0.7);
+            padding: 0.7rem 1.5rem;
+            border-radius: 50px;
+            display: inline-block;
+            margin-top: 0.5rem;
+            border: 1px solid #e50914;
+        }
+
+        /* ---------- PROJECTS SECTION (Netflix Featured Content style) ---------- */
+        .projects-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 1.8rem;
+            margin: 1.5rem 0 2rem;
+        }
+
+        .project-card {
+            background: #1a1a1a;
+            border-radius: 12px;
+            border: 1px solid #2e2e2e;
+            transition: all 0.25s ease;
+            box-shadow: 0 18px 30px -12px rgba(0,0,0,0.8);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .project-card:hover {
+            transform: scale(1.02);
+            border-color: #e50914;
+            box-shadow: 0 20px 32px -8px rgba(229,9,20,0.3);
+        }
+
+        .project-card .card-header {
+            background: #222;
+            padding: 1.2rem 1.5rem;
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 2px solid #e50914;
+        }
+
+        .project-card .card-header h3 {
+            font-size: 1.3rem;
+            font-weight: 600;
+            color: white;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            width: 100%;
+            margin-bottom: 0.3rem;
+        }
+
+        .project-card .card-header .meta-badge {
+            background: #e50914;
+            color: white;
+            font-weight: 600;
+            padding: 0.2rem 1rem;
+            border-radius: 40px;
+            font-size: 0.8rem;
+            display: inline-block;
+            margin-right: 10px;
+        }
+
+        .project-card .card-header .date {
+            color: #aaa;
+            font-size: 0.85rem;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            margin-left: auto;
+        }
+
+        .project-card .card-body {
+            padding: 1.5rem;
+            background: #1a1a1a;
+        }
+
+        .project-card .tools-badge {
+            background: #333;
+            color: #e50914;
+            font-weight: 600;
+            font-size: 0.7rem;
+            padding: 0.2rem 0.8rem;
+            border-radius: 20px;
+            text-transform: uppercase;
+            letter-spacing: 0.4px;
+            border: 1px solid #e50914;
+            display: inline-block;
+            margin-bottom: 0.5rem;
+        }
+
+        .project-card .card-body p {
+            margin-bottom: 0.8rem;
+            display: flex;
+            gap: 8px;
+            align-items: flex-start;
+        }
+
+        .project-card .card-body i.fa-check-circle {
+            color: #46d369;
+            font-size: 1rem;
+            margin-top: 3px;
+            min-width: 18px;
+        }
+
+        .tech-stack-mini {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 1rem;
+        }
+
+        .tech-stack-mini span {
+            background: #2a2a2a;
+            border: 1px solid #404040;
+            border-left: 3px solid #e50914;
+            padding: 4px 12px;
+            border-radius: 30px;
+            font-size: 0.75rem;
+            font-weight: 500;
+            color: #ccc;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Netflix style header -->
+    <div class="navbar">
+        <div class="logo-area">
+            <span class="netflix-logo">ZS <span style="font-size: 0.9rem; color:#aaa; margin-left:4px;">| SDE</span></span>
+            <div class="nav-links">
+                <a href="#">Home</a>
+                <a href="#">Experience</a>
+                <a href="#projects">Projects</a>
+                <a href="#">Resume</a>
+            </div>
+        </div>
+        <div class="nav-secondary">
+            <i class="fas fa-search"></i>
+            <i class="fas fa-bell"></i>
+            <i class="fas fa-user-circle"></i>
+        </div>
+    </div>
+
+    <!-- Hero section (profile banner) -->
+    <div class="hero-banner">
+        <div class="container" style="width:100%;">
+            <div class="hero-content">
+                <span class="badge"><i class="fas fa-code" style="margin-right:6px;"></i> SDE II · Backend & Integrations</span>
+                <h1>ZAKIR SHAIKH</h1>
+                <div class="match"><i class="fas fa-check-circle" style="margin-right:6px;"></i> 98% Match · results‑driven</div>
+                <div class="hero-desc">
+                    Scalable systems · microservices · RabbitMQ · Python/Django · ML frameworks.
+                </div>
+                <div class="profile-highlight">
+                    <i class="fas fa-map-pin" style="color:#e50914;"></i> Pune, IN &nbsp;&nbsp; 
+                    <i class="fas fa-envelope" style="color:#e50914; margin-left:12px;"></i> zakir.sk6090@gmail.com
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="container">
+        <!-- PROFILE row (like netflix "My List" but summary) -->
+        <div class="section-title">
+            <i class="fas fa-info-circle"></i> <span>PROFILE &nbsp;<span class="netflix-badge">HIGHLIGHTS</span></span>
+        </div>
+        <div class="card-row">
+            <div class="card" style="flex: 2 1 500px;">
+                <div class="card-header"><i class="fas fa-user-astronaut"></i> about</div>
+                <div class="card-body">
+                    Results-driven SDE with hands-on experience in designing and implementing scalable backend systems, microservices, and real-time integrations. Skilled in Django, RabbitMQ, and multiple databases (MySQL, PostgreSQL, MongoDB), with a strong foundation in machine learning frameworks such as Scikit-learn and TensorFlow. Proven ability to optimize performance, enhance system reliability, and reduce incidents through automation and robust error handling. Experienced in Agile environments, collaborative development, and delivering high-impact solutions for e-commerce and enterprise integration projects.
+                </div>
+            </div>
+            <div class="card">
+                <div class="card-header"><i class="fas fa-cogs"></i> core strengths</div>
+                <div class="card-body">
+                    <div class="list-item"><i class="fas fa-check-circle"></i> Distributed Systems & HA</div>
+                    <div class="list-item"><i class="fas fa-check-circle"></i> LLD / HLD understanding</div>
+                    <div class="list-item"><i class="fas fa-check-circle"></i> Code Optimization</div>
+                    <div class="list-item"><i class="fas fa-check-circle"></i> Critical Thinking</div>
+                    <div class="list-item"><i class="fas fa-check-circle"></i> Agile/Scrum, Code Reviews</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- TECHNICAL SKILLS row (genre row) -->
+        <div class="section-title">
+            <i class="fas fa-laptop-code"></i> <span>TECHNICAL SKILLS</span>
+        </div>
+        <div class="card-row">
+            <div class="card">
+                <div class="card-header"><i class="fab fa-python"></i> languages & frameworks</div>
+                <div class="card-body">
+                    <div class="skill-tags">
+                        <span class="skill-tag">Python</span><span class="skill-tag">HTML/CSS</span><span class="skill-tag">Django</span>
+                        <span class="skill-tag">Scikit‑learn</span><span class="skill-tag">XGBoost</span><span class="skill-tag">TensorFlow</span>
+                    </div>
+                </div>
+            </div>
+            <div class="card">
+                <div class="card-header"><i class="fas fa-database"></i> databases & messaging</div>
+                <div class="card-body">
+                    <div class="skill-tags">
+                        <span class="skill-tag">MySQL</span><span class="skill-tag">PostgreSQL</span><span class="skill-tag">MongoDB</span>
+                        <span class="skill-tag">RabbitMQ</span><span class="skill-tag">Event Processing</span>
+                    </div>
+                </div>
+            </div>
+            <div class="card">
+                <div class="card-header"><i class="fas fa-diagram-project"></i> practices & design</div>
+                <div class="card-body">
+                    <div class="skill-tags">
+                        <span class="skill-tag">LLD / HLD</span><span class="skill-tag">Distributed Systems</span>
+                        <span class="skill-tag">Agile/Scrum</span><span class="skill-tag">Docs</span><span class="skill-tag">Problem Solving</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- EXPERIENCE (like "Continue Watching" but career) -->
+        <div class="section-title">
+            <i class="fas fa-briefcase"></i> <span>EXPERIENCE · Web Minds IT Solutions</span>
+        </div>
+        <div class="card-row">
+            <div class="card">
+                <div class="card-header"><i class="fas fa-cloud"></i> backend team (current)</div>
+                <div class="card-body">
+                    <div style="color:#e50914; font-weight:600;">07/2024 – present</div>
+                    <ul style="list-style:none; margin-top:12px;">
+                        <li class="list-item"><i class="fas fa-angle-right"></i> RabbitMQ clustering for WMSSOAR HA & integrated workflows into CLI.</li>
+                        <li class="list-item"><i class="fas fa-angle-right"></i> CLI tools for RabbitMQ clustering – seamless HA integration.</li>
+                        <li class="list-item"><i class="fas fa-angle-right"></i> Collaborate cross‑functionally for high availability (Enterprise, HA, MSSP).</li>
+                        <li class="list-item"><i class="fas fa-angle-right"></i> Bug fixes, performance, customer‑driven enhancements.</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="card">
+                <div class="card-header"><i class="fas fa-puzzle-piece"></i> integration team (first 1 year)</div>
+                <div class="card-body">
+                    <ul style="list-style:none;">
+                        <li class="list-item"><i class="fas fa-angle-right"></i> Developed 30+ integrations: Exchange, OpenAI, AIAV, GitLab, GitHub, others.</li>
+                        <li class="list-item"><i class="fas fa-angle-right"></i> Delivered two solution packs: Continuous Delivery & AVAI.</li>
+                        <li class="list-item"><i class="fas fa-angle-right"></i> Designed APIs & connectors for WMS products ↔ external platforms.</li>
+                        <li class="list-item"><i class="fas fa-angle-right"></i> Security & scalability best practices enforced.</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="card">
+                <div class="card-header"><i class="fas fa-rocket"></i> key impact</div>
+                <div class="card-body">
+                    <span class="skill-tag" style="background:#e50914; color:white;">30+ integrations</span>
+                    <span class="skill-tag" style="background:#e50914; color:white;">HA clustering</span>
+                    <span class="skill-tag" style="background:#e50914; color:white;">CLI automation</span>
+                    <p style="margin-top:16px;"><i class="fas fa-trophy" style="color:#e50914;"></i> reduced incidents, reliability ↑</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- NEW FEATURED PROJECTS SECTION (Netflix featured content style) -->
+        <section id="projects">
+            <div class="section-title">
+                <i class="fas fa-fire"></i> <span>FEATURED PROJECTS</span>
+            </div>
+            <div class="projects-grid">
+                <!-- AI Gateway Project -->
+                <div class="project-card">
+                    <div class="card-header">
+                        <h3><i class="fas fa-robot"></i> AI Gateway for E-Commerce</h3>
+                        <span class="meta-badge">🚀 40% faster</span>
+                        <div class="date"><i class="far fa-calendar-alt"></i> 01/2026 – Present</div>
+                    </div>
+                    <div class="card-body">
+                        <p><span class="tools-badge">TEAM</span> System Architect & Backend Engineer (Team of 4)</p>
+                        <p><i class="fas fa-check-circle"></i> Spearheaded design of AI Gateway processing <strong>15,000+ daily requests</strong> for search & recommendations</p>
+                        <p><i class="fas fa-check-circle"></i> Authored <strong>20-page system design</strong> with 8+ diagrams, recognized as "Best System Design" among 120 students</p>
+                        <p><i class="fas fa-check-circle"></i> Reduced latency from 500ms to 120ms (<strong>40% improvement</strong>) via smart routing</p>
+                        <p><i class="fas fa-check-circle"></i> Built Redis caching layer with <strong>75% cache hit ratio</strong>, reducing redundant AI calls by 35%</p>
+                        <div class="tech-stack-mini">
+                            <span>TensorFlow</span><span>Redis</span><span>REST API</span><span>System Design</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Self-Service Ordering System -->
+                <div class="project-card">
+                    <div class="card-header">
+                        <h3><i class="fas fa-utensils"></i> Self-Service Ordering System</h3>
+                        <span class="meta-badge">⚡ 99.96% uptime</span>
+                        <div class="date"><i class="far fa-calendar-alt"></i> 09/2025 – 01/2026</div>
+                    </div>
+                    <div class="card-body">
+                        <p><span class="tools-badge">ROLE</span> Full Stack Developer</p>
+                        <p><i class="fas fa-check-circle"></i> Platform handling <strong>1,000+ concurrent users</strong> with 99.96% uptime</p>
+                        <p><i class="fas fa-check-circle"></i> Reduced order time from 8-12 minutes to <strong>12 seconds (98% improvement)</strong></p>
+                        <p><i class="fas fa-check-circle"></i> WebSocket server with <strong>&lt;100ms latency</strong> for real-time kitchen updates</p>
+                        <p><i class="fas fa-check-circle"></i> Increased average check value by <strong>22% through intelligent upselling</strong></p>
+                        <div class="tech-stack-mini">
+                            <span>PostgreSQL 18</span><span>Node.js</span><span>WebSocket</span><span>Docker</span><span>Redis</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Bank Customer Churn Prediction - NEW PROJECT -->
+                <div class="project-card">
+                    <div class="card-header">
+                        <h3><i class="fas fa-university"></i> Bank Customer Churn Prediction</h3>
+                        <span class="meta-badge">📊 86.2% Acc</span>
+                        <div class="date"><i class="far fa-calendar-alt"></i> 11/2025 – 01/2026</div>
+                    </div>
+                    <div class="card-body">
+                        <p><span class="tools-badge">TOOLS</span> Python, Scikit-learn, XGBoost, Streamlit, SHAP, Plotly, Pandas, SQL</p>
+                        <p><i class="fas fa-check-circle"></i> Developed predictive model with <strong>86.2% accuracy</strong> using Random Forest & XGBoost</p>
+                        <p><i class="fas fa-check-circle"></i> Built interactive <strong>Streamlit dashboard</strong> for real-time customer risk assessment</p>
+                        <p><i class="fas fa-check-circle"></i> Implemented <strong>SHAP analysis</strong> to explain predictions & identify key churn drivers</p>
+                        <p><i class="fas fa-check-circle"></i> Engineered features → <strong>12% improvement</strong> in model performance</p>
+                        <p><i class="fas fa-check-circle"></i> Created <strong>4-tier risk scoring</strong> (Low/Medium/High/Critical) for targeted retention</p>
+                        <div class="tech-stack-mini">
+                            <span>Scikit-learn</span><span>XGBoost</span><span>Streamlit</span><span>SHAP</span><span>Pandas</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- EDUCATION & CERTIFICATIONS (two rows combined) -->
+        <div class="section-title">
+            <i class="fas fa-graduation-cap"></i> <span>EDUCATION & TRAINING</span>
+        </div>
+        <div class="card-row">
+            <div class="card">
+                <div class="card-header"><i class="fas fa-university"></i> degrees</div>
+                <div class="card-body">
+                    <div class="list-item"><i class="fas fa-diploma"></i> <strong>Bachelor of Engineering</strong> – MMIT Pune</div>
+                    <div class="list-item"><i class="fas fa-diploma"></i> <strong>Diploma Engineer</strong> – Government Polytechnic Karad</div>
+                </div>
+            </div>
+            <div class="card">
+                <div class="card-header"><i class="fas fa-microchip"></i> ML & specializations</div>
+                <div class="card-body">
+                    <div class="list-item"><i class="fab fa-python"></i> Machine Learning – Unified Mentor</div>
+                    <div class="list-item"><i class="fas fa-trophy"></i> Participation: Auto India Racing Championship (AIRC)</div>
+                </div>
+            </div>
+            <div class="card">
+                <div class="card-header"><i class="fas fa-certificate"></i> certifications</div>
+                <div class="card-body">
+                    <div class="skill-tag">Python Programming</div>
+                    <div style="margin-top:14px;"><i class="fas fa-check" style="color:#46d369;"></i> Auto India Racing Championship (AIRC) participant</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- divider like netflix show separator -->
+        <div class="divider"></div>
+
+        <!-- quick contact row -->
+        <div style="display: flex; gap: 24px; flex-wrap: wrap; justify-content: space-between; align-items: center; margin: 30px 0;">
+            <span style="font-size: 1.5rem; font-weight: 600;"><i class="fas fa-phone-alt" style="color:#e50914; margin-right:12px;"></i> +91 9067576090</span>
+            <span style="font-size: 1.5rem; font-weight: 500; background:#1e1e1e; padding:10px 25px; border-radius:40px; border:1px solid #e50914;">
+                <i class="fab fa-github"></i> SZakirM &nbsp;&nbsp; <i class="fab fa-linkedin"></i> zakir-shaikh
+            </span>
+        </div>
+    </div>
+
+    <!-- footer -->
+    <div class="footer-bar">
+        <div class="footer-grid">
+            <div>
+                <i class="fas fa-copyright"></i> 2025 Zakir Shaikh — Resume website <span style="color:#e50914;">inspired by Netflix</span>
+            </div>
+            <div class="social-links">
+                <a href="#"><i class="fab fa-github"></i></a>
+                <a href="#"><i class="fab fa-linkedin-in"></i></a>
+                <a href="#"><i class="fas fa-envelope"></i></a>
+                <a href="#"><i class="fab fa-x-twitter"></i></a>
+            </div>
+        </div>
+        <div style="margin-top: 1.5rem; font-size:0.8rem; display:flex; gap:30px; flex-wrap:wrap;">
+            <span>Audio Description</span><span>Help Center</span><span>Jobs</span><span>Terms of Use</span><span>Privacy</span>
+            <span>Legal Notices</span><span>Cookie Preferences</span>
+        </div>
+    </div>
+</body>
+</html>
